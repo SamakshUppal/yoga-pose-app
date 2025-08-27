@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Yoga Pose Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 20px; }
+    h1 { margin-bottom: 10px; }
+    .controls { display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap: wrap; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
+    th { background: #f4f4f4; }
+    pre { white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow:auto; }
+    .pager { margin-top: 12px; display:flex; gap:8px; align-items:center; }
+    button { padding: 6px 10px; cursor: pointer; }
+    input, select { padding: 6px 8px; }
+  </style>
+</head>
+<body>
+  <h1>Database Viewer</h1>
+  <div class="controls">
+    <label>User ID <input id="userId" type="number" value="1" min="1"></label>
+    <label>Page <input id="page" type="number" value="1" min="1"></label>
+    <label>Page Size <input id="pageSize" type="number" value="25" min="1" max="200"></label>
+    <button id="loadBtn">Load</button>
+    <span id="meta"></span>
+  </div>
+
+  <table id="grid">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Timestamp</th>
+        <th>Pose JSON</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="pager">
+    <button id="prevBtn">Prev</button>
+    <button id="nextBtn">Next</button>
+  </div>
+
+  <script>
+    async function fetchData(userId, page, pageSize) {
+      const res = await fetch(`/api/landmarks/${userId}?page=${page}&page_size=${pageSize}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      return res.json();
+    }
+
+    function render(data) {
+      const tbody = document.querySelector('#grid tbody');
+      tbody.innerHTML = '';
+      data.data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.id}</td>
+          <td>${row.name}</td>
+          <td>${row.timestamp}</td>
+          <td><pre>${JSON.stringify(row.pose_data, null, 2)}</pre></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('meta').textContent = `Total: ${data.total}`;
+    }
+
+    async function load() {
+      const userId = document.getElementById('userId').value;
+      const page = parseInt(document.getElementById('page').value, 10);
+      const pageSize = parseInt(document.getElementById('pageSize').value, 10);
+      const data = await fetchData(userId, page, pageSize);
+      render(data);
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', load);
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      const p = document.getElementById('page');
+      p.value = Math.max(1, parseInt(p.value, 10) - 1);
+      load();
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      const p = document.getElementById('page');
+      p.value = parseInt(p.value, 10) + 1;
+      load();
+    });
+
+    load();
+  </script>
+</body>
+</html>

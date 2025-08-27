@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Yoga Pose App - Demo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; }
+    video, canvas { width: 360px; height: 270px; background: #000; }
+    .card { border: 1px solid #ddd; padding: 12px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+    .pill { display:inline-block; padding: 4px 8px; border-radius: 999px; background:#f2f2f2; }
+    .ok { color: #0a6; } .err { color:#b00; } .muted { color:#666; }
+  </style>
+</head>
+<body>
+  <h1>Yoga Pose App - End-to-End Demo</h1>
+  <p class="muted">Frontend extracts landmarks using MediaPipe in the browser and sends them to the Flask backend. Backend stores and broadcasts live updates via WebSockets.</p>
+
+  <div class="card">
+    <div>Backend URL: <input id="backendUrl" value="http://localhost:5000" size="30"/></div>
+    <div>User name: <input id="username" value="demo-user"/></div>
+    <button id="initBtn">Initialize</button>
+    <span id="initStatus" class="pill muted">not started</span>
+  </div>
+
+  <div class="row">
+    <div class="card">
+      <h3>Camera</h3>
+      <video id="video" autoplay playsinline></video>
+      <canvas id="output"></canvas>
+      <div>FPS: <span id="fps">0</span></div>
+      <div>Last POST: <span id="lastPost">never</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Live Updates (Socket.IO)</h3>
+      <div class="pill">Status: <span id="wsStatus" class="muted">disconnected</span></div>
+      <pre id="wsLog" style="max-height:320px; overflow:auto;"></pre>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
